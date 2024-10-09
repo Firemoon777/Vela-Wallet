@@ -1,0 +1,52 @@
+<template>
+    <div class="page" @swipe="goBack" @click="handleClick()">
+        <text class="message">{{msg}}</text>
+    </div>
+  </template>
+  
+  <script>
+  import router from "@system.router"
+  import {CardTypes} from "../../utils/database"
+  
+  export default {
+    private: {
+    },
+    public: {
+        msg: "???",
+        card_id: null,
+        next_url: null,
+        kwargs: null
+    },
+
+    goBack(eve) {
+        if(eve.direction === "right") {
+            router.back();
+        }
+    },
+    handleClick() {
+        let params = JSON.parse(this.kwargs)
+      router.replace({
+        uri: this.next_url,
+        params: params
+      })
+    },
+  }
+  </script>
+  
+  <style>
+  .page {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: black;
+  }
+  
+  .message {
+    color: white;
+    text-align: center;
+    width: 192px;
+    height: 490px;
+    font-size: 20px;
+  }
+  </style>
+  

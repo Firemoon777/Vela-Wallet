@@ -1,0 +1,138 @@
+<template>
+    <div class="page" @swipe="goBack">
+      <list class="list">
+        <list-item class="header" type="item"></list-item>
+        <list-item class="header-text" type="item">
+            <text class="header-text">Новая карта</text>
+        </list-item>
+        <list-item for="row in data" class="row" type="item">
+            <image class="left-item" if="row.length > 0" src="/common/cards/{{row[0]}}.png" @click="handleClick(row[0])"/>
+            <image class="right-item" if="row.length > 1" src="/common/cards/{{row[1]}}.png" @click="handleClick(row[1])"/>
+        </list-item>
+        <list-item class="footer" type="item"></list-item>
+        <list-item class="manual" type="item">
+            <a class="manual">Вручную</a>
+        </list-item>
+      </list>
+    </div>
+  </template>
+  
+  <script>
+  import router from "@system.router"
+  import {CardTypes} from "../../utils/database"
+  
+  export default {
+    private: {
+      data: []
+    },
+    goBack(eve) {
+        if(eve.direction === "right") {
+            router.back();
+        }
+    },
+    buildData() {
+      let raw = Object.keys(CardTypes);
+      this.data = raw.reduce((result, value, index, array) => {
+        if(index % 2 === 0) {
+          result.push(array.slice(index, index + 2))
+        }
+        return result;
+      }, [])
+    },
+    handleClick(item_id) {
+      let item = CardTypes[item_id];
+      let keyboard_type = item.keyboard[0]
+      if(item.info) {
+        router.push({
+            uri: "pages/NewCardInfo",
+            params: {
+                msg: item.info + " Коснитесь, чтобы продолжить",
+                next_url: "pages/KeyboardScreen",
+                kwargs: {
+                    keyboard: keyboard_type,
+                    displayFormat: item.displayFormat,
+                    next_url: "",
+                    kwargs: {
+                        card_id: item_id
+                    }
+                }
+            }
+        })
+        return
+      }
+      router.push({
+        uri: "pages/KeyboardScreen",
+        params: {
+            keyboard: keyboard_type,
+            displayFormat: item.displayFormat,
+            next_url: "",
+            kwargs: {
+                "card_id": item_id
+            }
+        }
+      })
+    },
+    onInit() {
+      this.buildData()
+    }
+  }
+  </script>
+  
+  <style>
+  .page {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: black;
+  }
+  
+  .header {
+    width: 192px;
+    height: 48px;
+  }
+
+  .footer {
+    width: 192px;
+    height: 32px;
+  }
+
+  .list {
+    width: 192px;
+    height: 490px;
+  }
+  
+  .row {
+    width: 192px;
+    height: 69px;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  
+  .left-item {
+    width: 92px;
+    height: 69px;
+  }
+
+  .right-item {
+    width: 92px;
+    height: 69px;
+    margin-left: 8px;
+  }
+
+  .manual {
+    color: #AAAAAA;
+    width: 192px;
+    font-size: 18px;
+    height: 96px;
+    text-align: center;
+  }
+
+  .header-text {
+    color: white;
+    font-size: 18px;
+    width: 192px;
+    height: 48px;
+    text-align: center;
+  }
+  </style>
+  

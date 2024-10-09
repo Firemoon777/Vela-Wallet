@@ -1,0 +1,101 @@
+<template>
+  <div class="page">
+    <list class="list">
+      <list-item class="header" type="item"></list-item>
+      <list-item for="row in data" class="row" type="item">
+          <image class="left-item" if="row.length > 0" src="/common/cards/{{row[0].icon}}.png" @click="handleClick(row[0])"/>
+          <image class="right-item" if="row.length > 1" src="/common/cards/{{row[1].icon}}.png" @click="handleClick(row[1])"/>
+      </list-item>
+      <list-item class="footer" type="item"></list-item>
+    </list>
+  </div>
+</template>
+
+<script>
+import router from "@system.router"
+
+export default {
+  private: {
+    data: []
+  },
+  buildData() {
+    let raw = [];
+    raw.push({icon: "action_new", url: "pages/NewCardPicker"});
+    raw.push({icon: "action_info", url: "pages/AboutScreen"});
+
+    this.data = raw.reduce((result, value, index, array) => {
+      if(index % 2 === 0) {
+        result.push(array.slice(index, index + 2))
+      }
+      return result;
+    }, [])
+    console.log(this.data)
+  },
+  handleClick(item) {
+    if(item.url) {
+      router.push({
+        uri: item.url,
+        params: {}
+      })
+    }
+    
+  },
+  onInit() {
+    this.buildData()
+  }
+}
+</script>
+
+<style>
+.page {
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: black;
+}
+
+.list {
+  margin-top: 96px;
+  width: 192px;
+  height: 298px;
+}
+
+.row {
+  width: 192px;
+  height: 69px;
+  justify-content: center;
+}
+
+.list {
+    width: 192px;
+    height: 490px;
+  }
+  
+  .row {
+    width: 192px;
+    height: 69px;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  
+  .left-item {
+    width: 92px;
+    height: 69px;
+  }
+
+  .right-item {
+    width: 92px;
+    height: 69px;
+    margin-left: 8px;
+  }
+
+.header {
+    width: 192px;
+    height: 48px;
+  }
+
+  .footer {
+    width: 192px;
+    height: 32px;
+  }
+</style>

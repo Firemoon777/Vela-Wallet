@@ -1,0 +1,211 @@
+<template>
+    <div class="page" @swipe="goBack" >
+        <text class="title" @click="handleClick()">Введите номер с карты</text>
+        <div class="display-row">
+            <text class="display">{{display}}</text>
+            <image class="backspace" src="/common/backspace.png" @click="backspace()"/>
+        </div>
+        <div class="keyboard-row">
+            <text class="keyboard-button" @click="handleClick(0, 0)">{{layout[0][0]}}</text>
+            <text class="keyboard-button" @click="handleClick(0, 1)">{{layout[0][1]}}</text>
+            <text class="keyboard-button" @click="handleClick(0, 2)">{{layout[0][2]}}</text>
+        </div>
+        <div class="keyboard-row">
+            <text class="keyboard-button" @click="handleClick(1, 0)">{{layout[1][0]}}</text>
+            <text class="keyboard-button" @click="handleClick(1, 1)">{{layout[1][1]}}</text>
+            <text class="keyboard-button" @click="handleClick(1, 2)">{{layout[1][2]}}</text>
+        </div>
+        <div class="keyboard-row">
+            <text class="keyboard-button" @click="handleClick(2, 0)">{{layout[2][0]}}</text>
+            <text class="keyboard-button" @click="handleClick(2, 1)">{{layout[2][1]}}</text>
+            <text class="keyboard-button" @click="handleClick(2, 2)">{{layout[2][2]}}</text>
+        </div>
+        <div class="keyboard-row">
+            <text class="keyboard-button" @click="handleClick(3, 0)">{{layout[3][0]}}</text>
+            <text class="keyboard-button" @click="handleClick(3, 1)">{{layout[3][1]}}</text>
+            <text class="keyboard-button" @click="handleClick(3, 2)">{{layout[3][2]}}</text>
+        </div>
+        <a class="save-button">Сохранить</a>
+    </div>
+  </template>
+  
+  <script>
+  import router from "@system.router"
+  import {formatEan13, format3, format4, okay} from "../../utils/database"
+  
+  export default {
+    private: {
+        layout: [],
+        input_text: "",
+        reset_required: false,
+        caps: false,
+        current_keyboard: null
+    },
+    public: {
+        next_url: null,
+        kwargs: null,
+        keyboard: null,
+        displayFormat: null
+    },
+    computed: {
+        display() {
+            switch(this.displayFormat) {
+                case "formatEan13": return formatEan13(String(this.input_text));
+                case "format3": return format3(this.input_text);
+                case "format4": return format4(this.input_text);
+                case "okay": return okay(this.input_text);
+                default: return this.input_text;
+            }
+        }
+    },
+    setLayout() {
+        if(this.current_keyboard === "numbers") {
+            this.layout = [
+                ["1", "2", "3"],
+                ["4", "5", "6"],
+                ["7", "8", "9"],
+                ["0", "", ""]
+            ]
+            if(this.keyboard !== "numbers") {
+                this.layout[3][1] = "123";
+            }
+        } else {
+            if(this.caps === true) {
+                this.layout = [
+                    [".,-", "ABC", "DEF"],
+                    ["GHI", "JKL", "MNO"],
+                    ["PQR", "TUV", "WXY"],
+                    ["_0", "EN", "CAPS"]
+                ]
+            } else {
+                this.layout = [
+                    [".,-", "abc", "def"],
+                    ["ghi", "jkl", "mno"],
+                    ["pqr", "tuv", "wxy"],
+                    ["_0 ", "EN", "CAPS"]
+                ]
+            }
+        }
+    },
+    goBack(eve) {
+        if(eve.direction === "right") {
+            router.back();
+        }
+    },
+    handleClick(i, j) {
+      if(this.layout[i][j] !== "") {
+        if(this.layout[i][j].length === 1) {
+            this.input_text += String(this.layout[i][j])
+            if(this.reset_required) {
+                this.setLayout()
+                this.reset_required = false
+            }
+        } else if(this.layout[i][j] === "CAPS") {
+            this.caps = !this.caps;
+            this.setLayout()
+        } else if(this.layout[i][j] === "EN") {
+            this.current_keyboard = "numbers";
+            this.setLayout()
+        } else if(this.layout[i][j] === "123") {
+            this.current_keyboard = "t9";
+            this.setLayout()
+        } else if(this.layout[i][j] === ".,-") {
+            this.layout = [
+                [".", ",", "-"],
+                ["/", "?", "!"],
+                [":", ";", "("],
+                [")", "EN", "1"]
+            ]
+            this.reset_required = true;
+        } else {
+            let num = 3*i + j + 1;
+            let x = Math.trunc(this.layout[i][j].length / 3);
+            let y = this.layout[i][j].length % 3;
+            this.layout = [
+                [...this.layout[i][j]],
+                ["", "", ""],
+                ["", "", ""],
+                ["", "", ""]
+            ]
+            
+            if(1 <= num && num <= 9) {
+                this.layout[x][y] = "" + num;
+            }
+            this.reset_required = true;
+        }
+      } else {
+        if(this.reset_required) {
+            this.setLayout()
+            this.reset_required = false
+        }
+      }
+    },
+    backspace() {
+      this.input_text = this.input_text.substring(0, this.input_text.length - 1)
+    },
+    onInit() {
+      this.current_keyboard = this.keyboard;
+      this.setLayout()
+    }
+  }
+  </script>
+  
+  <style>
+  .page {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: black;
+  }
+  
+  .title {
+    color: #AAAAAA;
+    text-align: center;
+    width: 144px;
+    height: 96px;
+    font-size: 18px;
+  }
+
+  .displayrow {
+    width: 192px;
+    height: 104px;
+    justify-content: space-between;
+  }
+
+  .display {
+    width: 160px;
+    height: 104px;
+    color: white;
+    font-size: 22px;
+  }
+
+  .backspace {
+    width: 32px;
+    height: 104px;
+    object-fit: none;
+  }
+
+  .keyboard-row {
+    width: 192px;
+    height: 52px;
+    justify-content: space-between;
+  }
+
+  .keyboard-button {
+    width: 64px;
+    height: 52px;
+    text-align: center;
+    color: white;
+    font-size: 22px;
+  }
+
+  .save-button {
+    width: 192px;
+    height: 52px;
+    background-color: #111111;
+    font-size: 22px;
+    color: white;
+    text-align: center;
+  }
+  </style>
+  

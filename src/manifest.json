@@ -1,0 +1,40 @@
+{
+  "package": "com.firemoon.wallet",
+  "name": "wallet",
+  "versionName": "1.0.0",
+  "versionCode": 1,
+  "minPlatformVersion": 1000,
+  "icon": "/common/logo.png",
+  "deviceTypeList": [
+    "watch"
+  ],
+  "features": [
+    {
+      "name": "system.router"
+    }
+  ],
+  "config": {
+    "logLevel": "log",
+    "designWidth": 192
+  },
+  "router": {
+    "entry": "pages/index",
+    "pages": {
+      "pages/index": {
+        "component": "index"
+      },
+      "pages/AboutScreen": {
+        "component": "AboutScreen"
+      },
+      "pages/NewCardPicker": {
+        "component": "NewCardPicker"
+      },
+      "pages/NewCardInfo": {
+        "component": "NewCardInfo"
+      },
+      "pages/KeyboardScreen": {
+        "component": "KeyboardScreen"
+      }
+    }
+  }
+}

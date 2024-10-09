@@ -1,0 +1,89 @@
+<template>
+    <div class="page" @swipe="goBack">
+      <scroll class="scroll">
+        <image src="/common/logo.png" class="header"></image>
+        <text class="title">Кошелёк</text>
+        <text class="version">v2024-10-09</text>
+        <text class="key">Разработчик</text>
+        <text class="value">MelianMiko</text>
+        <text class="key">Портировал</text>
+        <text class="value">Firemoon</text>
+        <text class="key">Исп. библиотеки</text>
+        <text class="value">1</text>
+        <text class="value">2</text>
+        <text class="value">3</text>
+        <div class="bottom"></div>
+      </scroll>
+    </div>
+  </template>
+  
+  <script>
+  import router from "@system.router"
+  import configuration from "@system.configuration"
+  
+  export default {
+    private: {
+    },
+    goBack(eve) {
+        if(eve.direction === "right") {
+            router.back();
+        }
+    },
+  }
+  </script>
+  
+  <style>
+  .page {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: black;
+  }
+  
+  .scroll {
+    width: 192px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .header {
+    margin-top: 72px;
+    width: 100px;
+    height: 100px;
+    margin-left: 46px;
+    margin-right: 46px;
+  }
+
+  .title {
+    color: white;
+    font-size: 27px;
+    height: 48px;
+  }
+
+  .version {
+    color: #AAAAAA;
+    font-size: 18px;
+    height: 32px;
+    margin-bottom: 70px;
+  }
+
+  .key {
+    color: #AAAAAA;
+    font-size: 14px;
+    height: 21px;
+    margin-top: 10px;
+  }
+
+  .value {
+    color: #FFFFFF;
+    font-size: 18px;
+    height: 21px;
+  }
+
+  .bottom {
+    width: 192px;
+    height: 72px;
+  }
+  </style>
+  
