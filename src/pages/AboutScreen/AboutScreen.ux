@@ -4,6 +4,7 @@
         <image src="/common/logo.png" class="header"></image>
         <text class="title">Кошелёк</text>
         <text class="version">v2024-10-09</text>
+        <!--<a class="button" @click="importBackup">Импорт...</a>-->
         <text class="key">Разработчик</text>
         <text class="value">MelianMiko</text>
         <text class="key">Портировал</text>
@@ -28,6 +29,23 @@
             router.back();
         }
     },
+    importBackup() {
+      router.replace({
+        uri: "pages/NewCardInfo",
+        params: {
+          msg: "Введите адрес https-сервера, где лежит бэкап. Это затрет существующие карты. Нажмите для продолжения.",
+          next_url: "pages/KeyboardScreen",
+          kwargs: {
+            next_url: "pages/ImportPage",
+            title: "Введите адрес бэкапа",
+            input_text: "https://vds.f1remoon.com/b.json",
+            kwargs: {
+
+            }
+          }
+        }
+      })
+    }
   }
   </script>
   
@@ -64,7 +82,20 @@
     color: #AAAAAA;
     font-size: 18px;
     height: 32px;
-    margin-bottom: 70px;
+    margin-bottom: 35px;
+  }
+
+  .button {
+    background-color: #333333;
+    color: #ffffff;
+    width: 160px;
+    height: 48px;
+    font-size: 18px;
+    border-radius: 24px;
+    text-align: center;
+    margin-left: 16px;
+    margin-right: 16px;
+    margin-bottom: 20px;
   }
 
   .key {

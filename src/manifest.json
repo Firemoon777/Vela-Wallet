@@ -49,6 +49,9 @@
       },
       "pages/CardView": {
         "component": "CardView"
+      },
+      "pages/ImportPage": {
+        "component": "ImportPage"
       }
     }
   }

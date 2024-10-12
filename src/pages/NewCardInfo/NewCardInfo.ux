@@ -13,7 +13,6 @@
     },
     public: {
         msg: "???",
-        card_id: null,
         next_url: null,
         kwargs: null
     },
@@ -25,7 +24,6 @@
     },
     handleClick() {
         let params = JSON.parse(this.kwargs)
-        console.log(">>>>>>>>>>>")
         console.log(this.kwargs)
         console.log(params)
       router.replace({
