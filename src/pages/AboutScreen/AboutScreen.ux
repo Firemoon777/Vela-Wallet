@@ -9,9 +9,8 @@
         <text class="key">Портировал</text>
         <text class="value">Firemoon</text>
         <text class="key">Исп. библиотеки</text>
-        <text class="value">1</text>
-        <text class="value">2</text>
-        <text class="value">3</text>
+        <text class="value">JsBarcode</text>
+        <text class="value">PDF417</text>
         <div class="bottom"></div>
       </scroll>
     </div>

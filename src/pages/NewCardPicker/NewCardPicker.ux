@@ -11,7 +11,7 @@
         </list-item>
         <list-item class="footer" type="item"></list-item>
         <list-item class="manual" type="item">
-            <a class="manual">Вручную</a>
+            <a class="manual" @click="AdvancedEditor()">Вручную</a>
         </list-item>
       </list>
     </div>
@@ -51,9 +51,10 @@
                 kwargs: {
                     keyboard: keyboard_type,
                     displayFormat: item.displayFormat,
-                    next_url: "",
+                    next_url: "pages/WriteScreen",
                     kwargs: {
-                        card_id: item_id
+                        icon: item_id,
+                        format: item.format,
                     }
                 }
             }
@@ -65,11 +66,18 @@
         params: {
             keyboard: keyboard_type,
             displayFormat: item.displayFormat,
-            next_url: "",
+            next_url: "pages/WriteScreen",
             kwargs: {
-                "card_id": item_id
+              icon: item_id,
+              format: item.format,
             }
         }
+      })
+    },
+    AdvancedEditor() {
+      router.push({
+        uri: "pages/AdvEditor",
+        params: {}
       })
     },
     onInit() {

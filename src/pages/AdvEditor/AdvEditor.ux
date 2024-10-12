@@ -1,0 +1,160 @@
+<template>
+    <div class="page" @swipe="goBack">
+        <div class="header"></div>
+        <div class="row" @click="openKeyboard('name', name, 'Введите название')">
+            <text class="title">Название</text>
+            <text class="value">{{name}}</text>
+        </div>
+        <div class="row" @click="changeFormat">
+            <text class="title">Формат</text>
+            <text class="value">{{formats[format_index]}}</text>
+        </div>
+        <div class="row" @click="openKeyboard('color', color, 'Введите цвет')">
+            <text class="title">Цвет (HEX)</text>
+            <text class="value">{{color}}</text>
+        </div>
+        <div class="row" @click="openKeyboard('data', data, 'Введите номер с карты')">
+            <text class="title">Данные</text>
+            <text class="value">{{data}}</text>
+        </div>
+        <div class="footer"></div>
+        <a class="save" @click="save()">Создать</a>
+    </div>
+  </template>
+  
+  <script>
+  import router from "@system.router"
+  import {CardTypes} from "../../utils/database"
+import { saveToPhotosAlbum } from "@system.media";
+  
+  export default {
+    private: {
+        name: "Card",
+        format_index: 0,
+        color: "0099FF",
+        data: "",
+        formats: [
+            "QR",
+            "PDF417",
+            "CODE128",
+            "CODE39",
+            "EAN13",
+            "EAN8",
+            "EAN5",
+            "UPC",
+            "ITF14",
+            "INT2OF5",
+            "codabar"
+        ]
+    },
+    public: {
+        import_name: null,
+        import_format_index: null,
+        import_color: null,
+        import_data: null,
+        content: null,
+        field_name: null
+    },
+    changeFormat() {
+        this.format_index = (this.format_index + 1) % this.formats.length
+    },
+    goBack(eve) {
+        if(eve.direction === "right") {
+            router.back();
+        }
+    },
+    openKeyboard(field_name, value, title) {
+        router.replace({
+            uri: "pages/KeyboardScreen",
+            params: {
+                next_url: "pages/AdvEditor",
+                kwargs: {
+                    import_name: this.name,
+                    import_format_index: this.format_index,
+                    import_color: this.color,
+                    import_data: this.data,
+                    field_name: field_name,
+                },
+                import_input_text: value,
+                title: title
+            }
+        })
+    },
+    onInit() {
+        if(this.import_name !== null) this.name = this.import_name;
+        if(this.import_format_index !== null) this.format_index = this.import_format_index;
+        if(this.import_color !== null) this.color = this.import_color
+        if(this.import_data !== null) this.data = this.import_data
+
+        switch(this.field_name) {
+            case "name": this.name = this.content; break;
+            case "color": this.color = this.content; break;
+            case "data": this.data = this.content; break;
+            default: break;
+        }
+    },
+    save() {
+        router.replace({
+            uri: "pages/WriteScreen",
+            params: {
+                icon: "",
+                title: this.name,
+                format: this.formats[this.format_index],
+                color: this.color,
+                content: this.data
+            }
+        })
+    }
+  }
+  </script>
+  
+  <style>
+  .page {
+    flex-direction: column;
+    align-items: center;
+    background-color: black;
+  }
+
+  .header {
+    width: 192px;
+    height: 96px;
+  }
+  
+  .row {
+    flex-direction: column;
+    background-color: #111111;
+    width: 192px;
+    margin-bottom: 8px;
+  }
+
+  .title {
+    color: #999999;
+    text-align: left;
+    width: 192px;
+    height: 24px;
+    font-size: 18px;
+  }
+
+  .value {
+    color: #FFFFFF;
+    text-align: left;
+    width: 192px;
+    height: 32px;
+    font-size: 24px;
+  }
+
+  .footer {
+    width: 192px;
+    height: 68px;
+  }
+
+  .save {
+    width: 192px;
+    height: 70px;
+    background-color: #111111;
+    color: #ffffff;
+    text-align: center;
+    font-size: 18px;
+  }
+  </style>
+  

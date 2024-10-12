@@ -1,0 +1,96 @@
+<template>
+    <div class="page" @swipe="goBack" @click="handleClick()">
+        <text class="message">{{msg}}</text>
+    </div>
+  </template>
+  
+  <script>
+  import router from "@system.router"
+  import {CardTypes} from "../../utils/database"
+  import {CardStorage} from "../../utils/storage"
+  
+  export default {
+    private: {
+        card: {},
+        storage: null,
+    },
+    public: {
+        msg: "Обработка...",
+        icon: "",
+        title: "",
+        color: "",
+        format: "",
+        content: "",
+    },
+
+    goBack(eve) {
+        if(eve.direction === "right") {
+            router.back();
+        }
+    },
+    handleClick() {
+      let params = JSON.parse(this.kwargs)
+      router.replace({
+        uri: this.next_url,
+        params: params
+      })
+    },
+    onInit() {
+        let card = CardTypes[this.icon]
+        if(card) {
+            if(card.inputValidate) {
+                if(!card.inputValidate(this.content)) {
+                    this.msg = "Неверный код"
+                    return
+                }
+            }
+            if(card.codePostProcessing) {
+                this.content = card.codePostProcessing(this.content)
+            }
+        } 
+
+        this.card = {
+            format: this.format,
+            content: this.content,
+            icon: this.icon ? this.icon : ""
+        }
+        if(this.color) this.card.color = this.color;
+        if(this.title) this.card.title = this.title;
+
+        console.log(this.card)
+
+        this.storage = new CardStorage();
+        this.storage.load(this.onCardsLoad, this.onCardsLoad)
+    },
+    onCardsLoad(data) {
+        this.msg = "Добавляем..."
+        this.storage.addCard(this.card)
+        this.msg = "Сохраняем..."
+        this.storage.save(this.onCardSave, this.onCardSaveFail)
+    },
+    onCardSave(data) {
+        this.msg = "Сохранено!"
+    },
+    onCardSaveFail(data, code) {
+        this.msg = "Save fail! " + data + "; " + code
+    }
+  }
+  </script>
+  
+  <style>
+  .page {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: black;
+  }
+  
+  .message {
+    color: white;
+    text-align: center;
+    width: 192px;
+    height: 490px;
+    font-size: 20px;
+  }
+  </style>
+  

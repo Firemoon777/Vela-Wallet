@@ -1,6 +1,6 @@
 <template>
     <div class="page" @swipe="goBack" >
-        <text class="title" @click="handleClick()">Введите номер с карты</text>
+        <text class="title" @click="handleClick()">{{title}}</text>
         <div class="display-row">
             <text class="display">{{display}}</text>
             <image class="backspace" src="/common/backspace.png" @click="backspace()"/>
@@ -25,7 +25,7 @@
             <text class="keyboard-button" @click="handleClick(3, 1)">{{layout[3][1]}}</text>
             <text class="keyboard-button" @click="handleClick(3, 2)">{{layout[3][2]}}</text>
         </div>
-        <a class="save-button">Сохранить</a>
+        <a class="save-button" @click="save">Сохранить</a>
     </div>
   </template>
   
@@ -45,7 +45,9 @@
         next_url: null,
         kwargs: null,
         keyboard: null,
-        displayFormat: null
+        displayFormat: null,
+        import_input_text: null,
+        title: "Введите номер с карты"
     },
     computed: {
         display() {
@@ -143,7 +145,23 @@
     backspace() {
       this.input_text = this.input_text.substring(0, this.input_text.length - 1)
     },
+    save() {
+        let params = JSON.parse(this.kwargs)
+        console.log("keyaboard >>>>>>>>>>>")
+        console.log(this.kwargs)
+        console.log(params)
+        router.replace({
+            uri: this.next_url,
+            params: {
+                ...params,
+                content: this.input_text
+            }
+        })
+    },
     onInit() {
+      console.log("<<<<<<<<<< keyboard ")
+      console.log(this.kwargs)
+      if(this.import_input_text !== null) this.input_text = this.import_input_text;
       this.current_keyboard = this.keyboard;
       this.setLayout()
     }

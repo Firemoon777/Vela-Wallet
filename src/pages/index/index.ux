@@ -3,8 +3,18 @@
     <list class="list">
       <list-item class="header" type="item"></list-item>
       <list-item for="row in data" class="row" type="item">
-          <image class="left-item" if="row.length > 0" src="/common/cards/{{row[0].icon}}.png" @click="handleClick(row[0])"/>
-          <image class="right-item" if="row.length > 1" src="/common/cards/{{row[1].icon}}.png" @click="handleClick(row[1])"/>
+          <div class="left-item" if="row.length > 0" @click="handleClick(row[0])">
+            <image if="row[0].icon" src="/common/cards/{{row[0].icon}}.png" />
+            <text if="row[0].title" class="text-card" style="background-color: #{{row[0].color}};">
+              {{row[0].title}}
+            </text>
+          </div>
+          <div class="right-item" if="row.length > 1" @click="handleClick(row[1])">
+            <image if="row[1].icon" src="/common/cards/{{row[1].icon}}.png" />
+            <text if="row[1].title" class="text-card" style="background-color: #{{row[1].color}};">
+              {{row[1].title}}
+            </text>
+          </div>
       </list-item>
       <list-item class="footer" type="item"></list-item>
     </list>
@@ -13,23 +23,25 @@
 
 <script>
 import router from "@system.router"
+import {CardStorage} from "../../utils/storage"
 
 export default {
   private: {
-    data: []
+    raw: [],
+    storage: null
   },
-  buildData() {
-    let raw = [];
-    raw.push({icon: "action_new", url: "pages/NewCardPicker"});
-    raw.push({icon: "action_info", url: "pages/AboutScreen"});
-
-    this.data = raw.reduce((result, value, index, array) => {
-      if(index % 2 === 0) {
-        result.push(array.slice(index, index + 2))
-      }
-      return result;
-    }, [])
-    console.log(this.data)
+  computed: {
+    data() {
+      let computed_result = [...this.raw];
+      computed_result.push({icon: "action_new", url: "pages/NewCardPicker"});
+      computed_result.push({icon: "action_info", url: "pages/AboutScreen"});
+      return computed_result.reduce((result, value, index, array) => {
+        if(index % 2 === 0) {
+          result.push(array.slice(index, index + 2))
+        }
+        return result;
+      }, [])
+    }
   },
   handleClick(item) {
     if(item.url) {
@@ -37,12 +49,31 @@ export default {
         uri: item.url,
         params: {}
       })
+    } else {
+      router.push({
+        uri: "pages/CardView",
+        params: {
+          filename: item.filename,
+          format: item.format,
+          content: item.content,
+          index: item.index,
+          width: item.width ? item.width : null,
+          height: item.height ? item.height : null
+        }
+      })
     }
     
   },
+  onCardsLoad(payload) {
+    this.raw = payload;
+  },
   onInit() {
-    this.buildData()
-  }
+    this.storage = new CardStorage()
+    this.storage.load(this.onCardsLoad)
+  },
+  onShow() {
+    this.storage.load(this.onCardsLoad)
+  },
 }
 </script>
 
@@ -87,6 +118,16 @@ export default {
     width: 92px;
     height: 69px;
     margin-left: 8px;
+  }
+
+  .text-card {
+    width: 92px;
+    height: 69px;
+    background-color: #111111;
+    color: #ffffff;
+    text-align: center;
+    font-size: 18px;
+    border-radius: 10px;
   }
 
 .header {

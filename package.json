@@ -52,6 +52,7 @@
   },
   "dependencies": {
     "@aiot-toolkit/packager": "^1.1.4",
+    "fast-png": "^6.2.0",
     "sharp": "^0.33.5"
   }
 }

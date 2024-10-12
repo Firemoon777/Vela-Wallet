@@ -1,6 +1,6 @@
 {
   "package": "com.firemoon.wallet",
-  "name": "wallet",
+  "name": "Кошелёк",
   "versionName": "1.0.0",
   "versionCode": 1,
   "minPlatformVersion": 1000,
@@ -11,6 +11,12 @@
   "features": [
     {
       "name": "system.router"
+    },
+    {
+      "name": "system.media"
+    },
+    {
+      "name": "system.file"
     }
   ],
   "config": {
@@ -34,6 +40,15 @@
       },
       "pages/KeyboardScreen": {
         "component": "KeyboardScreen"
+      },
+      "pages/AdvEditor": {
+        "component": "AdvEditor"
+      },
+      "pages/WriteScreen": {
+        "component": "WriteScreen"
+      },
+      "pages/CardView": {
+        "component": "CardView"
       }
     }
   }

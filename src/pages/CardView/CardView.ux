@@ -1,0 +1,267 @@
+<template>
+    <div class="page" @swipe="goBack">
+        <scroll class="scroll">
+          <div class="main">
+            <image-animator 
+              class="img" 
+              if="isImage" 
+              ref="animator" 
+              images="{{frames}}" 
+              duration="1s"
+              style="width: {{width}}; height: {{height}}; margin-top: {{imageMarginTop}}" >
+            </image-animator>
+            <qrcode if="isQR" value="{{content}}" class="img-qr"></qrcode>
+            <text if="msg" class="error">{{msg}}</text>
+          </div>
+          <text class="message">Формат: {{format}}</text>
+          <text if="msg" class="message">Содержимое: {{content}}</text>
+          <a class="button" @click="createImage()">Пересоздать</a>
+          <a class="button" @click="deleteClicked()" style="color: red;">Удалить</a>
+          <div class="footer"></div>
+        </scroll>
+    </div>
+  </template>
+  
+  <script>
+  import router from "@system.router"
+  import file from '@system.file'
+
+  import {CardTypes} from "../../utils/database"
+  import {CardStorage} from "../../utils/storage"
+  import {CanvasLite} from "../../utils/canvas"
+  import {PngEncoder} from "../../utils/png"
+  import {JsBarcode} from "../../third-party/JsBarcode/JsBarcode"
+  import {PDF417} from "../../third-party/pdf417"
+  import {drawInt2of5} from "../../utils/int2of5"
+  
+  export default {
+    private: {
+      frames: [],
+      width: 0,
+      height: 0
+    },
+    public: {
+        msg: null,
+        filename: null,
+        format: null,
+        content: null,
+        index: null
+    },
+    computed: {
+        isQR() {
+            return this.format === 'QR' && !this.msg
+        },
+        isImage() {
+            return !this.isQR && !this.msg
+        },
+        imageMarginTop() {
+          return (490 - this.height) / 2
+        }
+    },
+    goBack(eve) {
+        if(eve.direction === "right") {
+            router.back();
+        }
+    },
+    createImage(data, code) {
+      console.log("creating image...")
+      try {
+        switch(this.format) {
+          case "QR":
+            console.log("QR doesn't need an image")
+            return;
+          case "PDF417":
+            console.log("PDF417")
+            this.createPDF417()
+            break;
+          case "INT2OF5":
+            console.log("INT2OF5")
+            this.createInt2of5()
+            break;
+          default:
+            this.createBarcode()
+            break;
+        }
+      } catch (e) {
+        this.onCreateImageFail(-1, e)
+      }
+    },
+    createBarcode() {
+      let canvas = new CanvasLite(1, 1);
+      JsBarcode(canvas, this.content, {
+        format: this.format,
+        flat: true,
+        height: 60,
+        width: 2,
+        margin: 0,
+        displayValue: false
+      })
+      this.saveCanvas(canvas)
+    },
+    createPDF417() {
+      PDF417.init(this.content)
+      const { num_cols, num_rows, bcode } = PDF417.getBarcodeArray();
+    
+      let canvas = new CanvasLite(num_cols * 3, num_rows * 2);
+      canvas.fillStyle = "#000000";
+      for (let i = 0; i < num_rows; i++) {
+        for (let j = 0; j < num_cols; j++) {
+          if (bcode[i][j] == 1) canvas.fillRect(3 * j, 2 * i, 3, 2);
+        }
+      }
+      this.saveCanvas(canvas)
+    },
+    createInt2of5() {
+      let canvas = new CanvasLite(100, 1);
+      drawInt2of5(this.content, canvas)
+      this.saveCanvas(canvas)
+    },
+    saveCanvas(canvas) {
+      console.log(`${canvas.width}x${canvas.height}`)
+      if(canvas.width > canvas.height) {
+        console.log("perform rotation")
+        canvas = CanvasLite.rotate90(canvas)
+      }
+      const imgDiagonal = Math.ceil(Math.sqrt((canvas.width * canvas.width) + (canvas.height * canvas.height)))
+      const screenDiagonal = Math.ceil(Math.sqrt((192 * 192 + 490 * 490))) - (96 / 2);
+
+      console.log("diagonal's", imgDiagonal, screenDiagonal);
+
+      if(canvas.height * 2 <= 490 && canvas.width * 2 <= 192 && imgDiagonal * 2 <= screenDiagonal) {
+        // Scale x2
+        console.log("Perform scale x2");
+        canvas = CanvasLite.scale(canvas)
+      }
+
+      this.width = canvas.width
+      this.height = canvas.height
+
+      let converter = new PngEncoder(canvas)
+      let result = converter.encode()
+      file.writeArrayBuffer({
+        uri: `internal://files/${this.filename}`, 
+        buffer: result,
+        success: this.onWriteImageSuccess,
+        fail: this.onCreateImageFail
+      })
+    },
+    onWriteImageSuccess() {
+      let storage = new CardStorage()
+      storage.editCard(this.index, {width: this.width, height: this.height}, this.onCreateImageSuccess)
+    },
+    onCreateImageSuccess() {
+      router.replace({
+        uri: "pages/CardView",
+        params: {
+          filename: this.filename,
+          format: this.format,
+          content: this.content,
+          index: this.index,
+          width: this.width,
+          height: this.height
+        }
+      })
+    }, 
+    onCreateImageFail(data, code) {
+      console.log(`${code} ${data}`)
+      this.msg = "Не удалось сгенерировать изображение."
+    },
+    onImageExists(data) {
+      this.msg = null
+      console.log("image exists!")
+      for(let key in data) {
+        console.log(`${key} : ${data[key]}`)
+      }
+      this.frames = [{
+        src: `internal://files/${this.filename}`
+      }]
+    },  
+    onCardDelete() {
+      router.back()
+    },
+    deleteCard() {
+      let storage = new CardStorage();
+      storage.deleteCard(this.index, this.onCardDelete)
+    },
+    deleteClicked() {
+      file.delete({
+        uri: `internal://files/${this.filename}`,
+        complete: this.deleteCard
+      })
+    },
+    onShow() {
+      file.get({
+        uri: `internal://files/${this.filename}`,
+        success: this.onImageExists,
+        fail: this.createImage
+      })
+    }
+  }
+  </script>
+  
+  <style>
+  .page {
+    flex-direction: column;
+    background-color: white;
+  }
+
+  .scroll {
+    width: 192px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .message {
+    color: black;
+    text-align: center;
+    width: 192px;
+    font-size: 20px;
+  }
+
+  .main {
+    width: 192px;
+    height: 490px;
+    align-content: center;
+    justify-content: center;
+  }
+
+  .img {
+    object-fit: none;
+    width: 176px;
+    height: 490px;
+    margin-left: 8px;
+    margin-right: 8px;
+  }
+
+  .img-qr {
+    width: 176px;
+    height: 176px;
+    margin-left: 8px;
+    margin-right: 8px;
+    margin-top: 157px;
+    margin-bottom: 157px;
+  }
+
+  .error {
+    width: 192px;
+    height: 490px;
+    font-size: 18px;
+    text-align: center;
+  }
+
+  .button {
+    width: 192px;
+    height: 64px;
+    font-size: 18px;
+    margin-top: 8px;
+    text-align: center;
+    background-color: #eeeeee;
+  }
+
+  .footer {
+    width: 192px;
+    height: 96px;
+  }
+  </style>
+  
