@@ -29,10 +29,9 @@
         }
     },
     handleClick() {
-      let params = JSON.parse(this.kwargs)
-      router.replace({
-        uri: this.next_url,
-        params: params
+      if(this.msg != "Сохранено!") return
+      router.back({
+        uri: "/"
       })
     },
     onInit() {

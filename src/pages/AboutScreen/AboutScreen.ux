@@ -4,7 +4,7 @@
         <image src="/common/logo.png" class="header"></image>
         <text class="title">Кошелёк</text>
         <text class="version">v2024-10-09</text>
-        <!--<a class="button" @click="importBackup">Импорт...</a>-->
+        <a class="button" @click="importBackup">Импорт...</a>
         <text class="key">Разработчик</text>
         <text class="value">MelianMiko</text>
         <text class="key">Портировал</text>

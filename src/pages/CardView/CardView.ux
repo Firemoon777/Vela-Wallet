@@ -25,6 +25,7 @@
   <script>
   import router from "@system.router"
   import file from '@system.file'
+  import brightness from '@system.brightness' 
 
   import {CardTypes} from "../../utils/database"
   import {CardStorage} from "../../utils/storage"
@@ -38,7 +39,9 @@
     private: {
       frames: [],
       width: 0,
-      height: 0
+      height: 0,
+      brightness_mode: null,
+      brightness_value: null
     },
     public: {
         msg: null,
@@ -195,6 +198,28 @@
         success: this.onImageExists,
         fail: this.createImage
       })
+      /*let self = this;
+      brightness.getMode({
+        success: function(data) {
+          self.brightness_mode = data
+          brightness.getValue({
+            success: function(data) {
+              self.brightness_value = data
+              brightness.setValue({value: 255})
+              brightness.setMode({mode: 0})
+              brightness.setKeepScreenOn({keepScreenOn: true})
+            },
+            fail: (data, code) => {console.log(`getValue: ${data} ${code}`)}
+          })
+        }, 
+        fail: (data, code) => {console.log(`getMode: ${data} ${code}`)}
+      })*/
+    },
+
+    onHide() {
+      /*brightness.setValue({value: this.brightness_value})
+      brightness.setMode({mode: this.brightness_mode})
+      brightness.setKeepScreenOn({keepScreenOn: false})*/
     }
   }
   </script>
@@ -257,6 +282,7 @@
     margin-top: 8px;
     text-align: center;
     background-color: #eeeeee;
+    color: black;
   }
 
   .footer {

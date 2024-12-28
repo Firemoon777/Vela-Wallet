@@ -76,14 +76,14 @@
                 this.layout = [
                     [".,-", "ABC", "DEF"],
                     ["GHI", "JKL", "MNO"],
-                    ["PQR", "TUV", "WXY"],
+                    ["PQRS", "TUV", "WXYZ"],
                     ["_0", "EN", "CAPS"]
                 ]
             } else {
                 this.layout = [
                     [".,-", "abc", "def"],
                     ["ghi", "jkl", "mno"],
-                    ["pqr", "tuv", "wxy"],
+                    ["pqrs", "tuv", "wxyz"],
                     ["_0 ", "EN", "CAPS"]
                 ]
             }
@@ -123,12 +123,15 @@
             let num = 3*i + j + 1;
             let x = Math.trunc(this.layout[i][j].length / 3);
             let y = this.layout[i][j].length % 3;
-            this.layout = [
-                [...this.layout[i][j]],
-                ["", "", ""],
-                ["", "", ""],
-                ["", "", ""]
-            ]
+            let newLayout = []
+            for(let row = 0; row < 4; row++) {
+                let buttons = [];
+                for(let col = 0; col < 3; col++) {
+                    buttons.push(row * 3 + col < this.layout[i][j].length ? this.layout[i][j][row * 3 + col] : "")
+                }
+                newLayout.push(buttons)
+            }
+            this.layout = newLayout
             
             if(1 <= num && num <= 9) {
                 this.layout[x][y] = "" + num;

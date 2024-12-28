@@ -89,7 +89,7 @@ export const CardTypes = {
 		displayFormat: "format3"
 	},
 	"fixprice": {
-		format: "EAN13",
+		format: "CODE128",
 		keyboard: ["numbers"],
 		info: "13 цифр, под штрих-кодом",
 		displayFormat: "formatEan13",

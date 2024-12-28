@@ -1,0 +1,66 @@
+<template>
+    <div class="page" @swipe="goBack">
+        <text class="message">{{msg}} {{content}}</text>
+    </div>
+  </template>
+  
+  <script>
+  import fetch from '@system.fetch' 
+  import router from "@system.router"
+  
+  export default {
+    private: {
+    },
+    public: {
+        msg: "???",
+        content: null
+    },
+
+    goBack(eve) {
+        if(eve.direction === "right") {
+            router.back();
+        }
+    },
+    onShow() {
+      console.log(">>>>>>>>>>>> fetch time!")
+      let self = this
+      fetch
+        .fetch({
+          url: this.content,
+          responseType: 'text'
+        })
+        .then(res => {
+          const result = res.data
+          self.msg = result
+          console.log(`the status code of the response: ${result.code}`)
+          console.log(`the data of the response: ${result.data}`)
+          console.log(
+            `the headers of the response: ${JSON.stringify(result.headers)}`
+          )
+        })
+        .catch(error => {
+          self.msg = `${error.code} -> ${error.data}`
+          console.log(`handling fail, errMsg = ${error.data}`)
+          console.log(`handling fail, errCode = ${error.code}`)
+        })
+      }
+  }
+  </script>
+  
+  <style>
+  .page {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: black;
+  }
+  
+  .message {
+    color: white;
+    text-align: center;
+    width: 192px;
+    height: 490px;
+    font-size: 20px;
+  }
+  </style>
+  
